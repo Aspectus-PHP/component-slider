@@ -1,0 +1,20 @@
+{
+    "name": "aspectus/component-slider",
+    "description": "A slider component",
+    "type": "library",
+    "require": {
+        "aspectus/aspectus": "^0.1.5"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Aspectus\\Components\\Input\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "thgs",
+            "email": "theogpl57@gmail.com"
+        }
+    ]
+}
