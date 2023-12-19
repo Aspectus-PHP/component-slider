@@ -20,7 +20,7 @@ $mainComponent = new class($xterm) implements Component
 
     public function __construct(private Xterm $xterm)
     {
-        $this->slider = new Slider($this->xterm, new SliderView(10, 5, 50));
+        $this->slider = new Slider($this->xterm, new SliderView(10, 5, 50, showValue: true));
     }
 
     public function view(): string
@@ -28,7 +28,10 @@ $mainComponent = new class($xterm) implements Component
         return $this->xterm
             ->moveCursorTo(4, 10)
             ->brightWhite()
-            ->write('Use arrow keys or mouse to move the slider, any other key to quit!')
+            ->write('Use arrow keys or use mouse button 1 to move the slider, Q to quit!')
+            ->moveCursorTo(5, 15)
+            ->white()
+            ->write('Mouse click button 1 and hold to drag slider')
             ->write($this->slider->view());
     }
 
@@ -39,23 +42,24 @@ $mainComponent = new class($xterm) implements Component
                 $this->xterm
                     ->saveCursorAndEnterAlternateScreenBuffer()
                     ->hideCursor()
+                    ->setPrivateModeTrackMouseAll()
                     ->flush();
                 break;
             case Message::TERMINATE:
                 $this->xterm
                     ->restoreCursorAndEnterNormalScreenBuffer()
                     ->showCursor()
+                    ->unsetPrivateModeTrackMouseAll()
                     ->flush();
                 break;
-
             case Message::KEY_PRESS:
-                if ($message['key'] === '<LEFT>') {
-                    $this->slider->decrement(10);
-                } elseif ($message['key'] === '<RIGHT>') {
-                    $this->slider->increment(10);
-                } else {
+                if (strtolower($message['key']) === 'q') {
                     return Message::quit();
                 }
+                return $this->slider->update($message);
+            case Message::MOUSE_INPUT:
+                return $this->slider->update($message);
+
             default:
                 return null;
         }
@@ -65,5 +69,5 @@ $mainComponent = new class($xterm) implements Component
 };
 
 
-(new Aspectus($xterm, $mainComponent, handleInput: true))
+(new Aspectus($xterm, $mainComponent, handleInput: true, handleMouseInput: true))
     ->start();
