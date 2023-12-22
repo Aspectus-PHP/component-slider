@@ -12,7 +12,7 @@ class Slider implements Component
 {
     public function __construct(
         private Xterm $xterm,
-        private SliderView $view = new SliderView(),
+        private SliderView $view = new SliderView(1, 1, 25),
         private int $value = 50,
         private string $decrementKey = '<LEFT>',        // todo: support array here
         private string $incrementKey = '<RIGHT>',        // todo: support array here
@@ -43,7 +43,7 @@ class Slider implements Component
 
     public function view(): string
     {
-        return $this->xterm
+        return (string) $this->xterm
             ->moveCursorTo($this->view->y, $this->view->x)
             ->eraseLine()
             ->write($this->view->render($this->value));

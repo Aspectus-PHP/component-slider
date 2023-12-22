@@ -26,14 +26,12 @@ final class SliderView
 
         $view = $this->left . $emptyBlocksLeft . $this->marker . $emptyBlocksRight . $this->right;
 
-        if ($this->showValue && $this->valuePositionLeft) {
-            return str_pad($value, 3, ' ', STR_PAD_LEFT) . ' ' . $view;
+        if (!$this->showValue) {
+            return $view;
         }
 
-        if ($this->showValue && !$this->valuePositionLeft) {
-            return $view . ' ' . str_pad($value, 3, ' ', STR_PAD_LEFT);
-        }
-
-        return $view;
+        return $this->valuePositionLeft
+            ? str_pad((string) $value, 3, ' ', STR_PAD_LEFT) . ' ' . $view
+            : $view . ' ' . str_pad((string) $value, 3, ' ', STR_PAD_LEFT);
     }
 }

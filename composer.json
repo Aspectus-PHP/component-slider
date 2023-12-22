@@ -16,5 +16,8 @@
             "name": "thgs",
             "email": "theogpl57@gmail.com"
         }
-    ]
+    ],
+    "require-dev": {
+        "psalm/phar": "^5.18"
+    }
 }
