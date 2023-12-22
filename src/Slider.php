@@ -83,28 +83,10 @@ class Slider implements Component
 
         $viewValueClicked = $event->x - $this->view->x - strlen($this->view->left) + 2;
         if ($viewValueClicked > $this->view->width) {
-            $this->xterm
-                ->saveCursor()
-                ->moveCursorTo(12, 10)
-                ->write('oob')
-                ->restoreCursor()
-                ->flush()
-            ;
-
             return null;
         }
 
-        $newSliderValue = (int) ($viewValueClicked * 100 / ($this->view->width));
-
-        $this->xterm
-            ->saveCursor()
-            ->moveCursorTo(12, 10)
-            ->write('mouse x: ' . $event->x . ' result: ' . $newSliderValue)
-            ->restoreCursor()
-            ->flush()
-            ;
-
-        $this->setValue($newSliderValue);
+        $this->setValue((int) ($viewValueClicked * 100 / ($this->view->width)));
 
         return null;
     }
