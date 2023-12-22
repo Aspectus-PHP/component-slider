@@ -3,7 +3,7 @@
     "description": "A slider component",
     "type": "library",
     "require": {
-        "aspectus/aspectus": "^0.1.5"
+        "aspectus/aspectus": "^0.1.6"
     },
     "license": "MIT",
     "autoload": {

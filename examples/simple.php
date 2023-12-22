@@ -1,7 +1,7 @@
 <?php
 
 use Aspectus\Aspectus;
-use Aspectus\Component;
+use Aspectus\Components\Basic\DefaultMainComponent;
 use Aspectus\Components\Input\Slider;
 use Aspectus\Components\Input\View\SliderView;
 use Aspectus\Message;
@@ -14,13 +14,14 @@ exec(command: 'stty -echo -icanon min 1 time 0 < /dev/tty', result_code: $result
 
 $xterm = new Xterm(new TerminalDevice());
 
-$mainComponent = new class($xterm) implements Component
+$mainComponent = new class($xterm) extends DefaultMainComponent
 {
     private Slider $slider;
 
-    public function __construct(private Xterm $xterm)
+    public function __construct(protected Xterm $xterm)
     {
         $this->slider = new Slider($this->xterm, new SliderView(10, 5, 50, showValue: true));
+        parent::__construct($this->xterm);
     }
 
     public function view(): string
@@ -37,34 +38,26 @@ $mainComponent = new class($xterm) implements Component
 
     public function update(?Message $message): ?Message
     {
-        switch ($message?->type) {
-            case Message::INIT:
-                $this->xterm
-                    ->saveCursorAndEnterAlternateScreenBuffer()
-                    ->hideCursor()
-                    ->setPrivateModeTrackMouseAll()
-                    ->flush();
-                break;
-            case Message::TERMINATE:
-                $this->xterm
-                    ->restoreCursorAndEnterNormalScreenBuffer()
-                    ->showCursor()
-                    ->unsetPrivateModeTrackMouseAll()
-                    ->flush();
-                break;
-            case Message::KEY_PRESS:
-                if (strtolower($message['key']) === 'q') {
-                    return Message::quit();
-                }
-                return $this->slider->update($message);
-            case Message::MOUSE_INPUT:
-                return $this->slider->update($message);
+        return match ($message?->type) {
+            Message::KEY_PRESS => match ($message['key']) {
+                'q' => Message::quit(),
+                default => $this->slider->update($message),
+            },
+            Message::MOUSE_INPUT => $this->slider->update($message),
+            default => parent::update($message)
+        };
+    }
 
-            default:
-                return null;
-        }
+    protected function onInit(Aspectus $aspectus): ?Message
+    {
+        $this->xterm->setPrivateModeTrackMouseAll();
+        return parent::onInit($aspectus);
+    }
 
-        return null;
+    protected function onTerminate(Aspectus $aspectus): ?Message
+    {
+        $this->xterm->unsetPrivateModeTrackMouseAll();
+        return parent::onTerminate($aspectus);
     }
 };
 
